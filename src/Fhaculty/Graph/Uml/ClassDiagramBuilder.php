@@ -1,9 +1,8 @@
 <?php
 
-namespace Fhaculty\Graph\Loader;
+namespace Fhaculty\Graph\Uml;
 
 use Fhaculty\Graph\GraphViz;
-
 use Fhaculty\Graph\Graph;
 use Fhaculty\Graph\Vertex;
 use Fhaculty\Graph\Algorithm\ConnectedComponents as AlgorithmConnectedComponents;
@@ -12,13 +11,14 @@ use \ReflectionClass;
 use \ReflectionParameter;
 
 /**
+ * UML class diagram builder
  *
  * @author clue
  * @link http://www.johndeacon.net/UML/UML_Appendix/Generated/UML_Appendix.asp
  * @link http://www.ffnn.nl/pages/articles/media/uml-diagrams-using-graphviz-dot.php
  * @link http://www.holub.com/goodies/uml/
  */
-class UmlClassDiagram extends Base
+class ClassDiagramBuilder
 {
     private $graph;
 
