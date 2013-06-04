@@ -20,6 +20,11 @@ use \ReflectionParameter;
  */
 class ClassDiagramBuilder
 {
+    /**
+     * Graph instance to operate on
+     * 
+     * @var Graph
+     */
     private $graph;
 
     private $options = array(
@@ -31,9 +36,9 @@ class ClassDiagramBuilder
         'show-constants' => true,
     );
 
-    public function __construct()
+    public function __construct(Graph $graph)
     {
-        $this->graph = new Graph();
+        $this->graph = $graph;
     }
 
     public function setOption($name, $flag)
@@ -221,17 +226,6 @@ class ClassDiagramBuilder
         }
 
         return $vertex;
-    }
-
-    /**
-     * actually create graph instance
-     *
-     * @return Graph
-     */
-    public function createGraph()
-    {
-        // clone instance so that the inner instance can not be modified from the outside
-        return $this->graph->createGraphClone();
     }
 
     /**
