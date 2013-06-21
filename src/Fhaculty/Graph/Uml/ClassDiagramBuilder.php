@@ -34,8 +34,10 @@ class ClassDiagramBuilder
     private $options = array(
         // whether to only show methods/properties that are actually defined in this class (and not those merely inherited from base)
         'only-self'   => true,
-        // whether to only show public methods/properties (or also include private/protected ones)
-        'only-public' => false,
+        // whether to also show private methods/properties
+        'show-private' => false,
+        // whether to also show protected methods/properties
+        'show-protected' => true,
         // whether to show class constants as readonly static variables (or just omit them completely)
         'show-constants' => true,
     );
@@ -308,7 +310,9 @@ class ClassDiagramBuilder
      */
     protected function isVisible($reflection)
     {
-        return (!$this->options['only-public'] || $reflection->isPublic());
+        return ($reflection->isPublic() ||
+                ($reflection->isProtected() && $this->options['show-protected']) ||
+                ($reflection->isPrivate() && $this->options['show-private']));
     }
 
     /**
