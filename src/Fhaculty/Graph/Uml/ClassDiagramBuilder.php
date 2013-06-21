@@ -22,7 +22,7 @@ class ClassDiagramBuilder
 {
     /**
      * Graph instance to operate on
-     * 
+     *
      * @var Graph
      */
     private $graph;
@@ -91,7 +91,24 @@ class ClassDiagramBuilder
             $vertex->createEdgeTo($parentVertex)->setLayoutAttribute('arrowhead', 'empty')->setLayoutAttribute('style', 'dashed');
         }
 
-        $label = '"{';
+        $vertex->setLayoutAttribute('shape', 'record');
+        $vertex->setLayoutAttribute('label', GraphViz::raw($this->getLabelRecordClass($reflection)));
+
+        return $vertex;
+    }
+
+    /**
+     * get label (for shape record) for the given reflection class
+     *
+     * @param ReflectionClass $reflection
+     * @return string
+     */
+    protected function getLabelRecordClass(ReflectionClass $reflection)
+    {
+        $class  = $reflection->getName();
+        $parent = $reflection->getParentClass();
+
+        $label  = '"{';
 
         $isInterface = false;
         if ($reflection->isInterface()) {
@@ -107,7 +124,7 @@ class ClassDiagramBuilder
             foreach ($reflection->getConstants() as $name => $value) {
                 if($this->options['only-self'] && $parent && $parent->getConstant($name) === $value) continue;
 
-                $label .= '+ «static» ' . self::escape($name) . ' : ' . $this->escape($this->getType(gettype($value))) . ' = ' . $this->getCasted($value) . ' \\{readOnly\\}\\l';
+                $label .= '+ «static» ' . $this->escape($name) . ' : ' . $this->escape($this->getType(gettype($value))) . ' = ' . $this->getCasted($value) . ' \\{readOnly\\}\\l';
             }
         }
 
@@ -197,10 +214,7 @@ class ClassDiagramBuilder
 
         $label .= '}"';
 
-        $vertex->setLayoutAttribute('shape', 'record');
-        $vertex->setLayoutAttribute('label', GraphViz::raw($label));
-
-        return $vertex;
+        return $label;
     }
 
     /**
