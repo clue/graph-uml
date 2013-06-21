@@ -132,7 +132,7 @@ class ClassDiagramBuilder
         foreach ($reflection->getProperties() as $property) {
             if($this->options['only-self'] && $property->getDeclaringClass()->getName() !== $class) continue;
 
-            if($this->options['only-public'] && !$property->isPublic()) continue;
+            if (!$this->isVisible($property)) continue;
 
             $label .= $this->visibility($property);
             if ($property->isStatic()) {
@@ -159,7 +159,7 @@ class ClassDiagramBuilder
             // method not defined in this class (inherited from parent), so skip
             if($this->options['only-self'] && $method->getDeclaringClass()->getName() !== $class) continue;
 
-            if($this->options['only-public'] && !$method->isPublic()) continue;
+            if (!$this->isVisible($method)) continue;
 
             // $ref = preg_replace('/[^a-z0-9]/i', '', $method->getName());
             // $label .= '<"' . $ref . '">';
@@ -215,6 +215,17 @@ class ClassDiagramBuilder
         $label .= '}"';
 
         return $label;
+    }
+
+    /**
+     * check if the given method/property reflection object should be visible
+     *
+     * @param ReflectionClass|ReflectionProperty $reflection
+     * @return boolean
+     */
+    protected function isVisible($reflection)
+    {
+        return (!$this->options['only-public'] || $reflection->isPublic());
     }
 
     /**
