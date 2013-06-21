@@ -9,6 +9,10 @@ use Fhaculty\Graph\Algorithm\ConnectedComponents as AlgorithmConnectedComponents
 use \Exception;
 use \ReflectionClass;
 use \ReflectionParameter;
+use \ReflectionProperty;
+use \ReflectionExtension;
+use \ReflectionFunction;
+use \ReflectionMethod;
 
 /**
  * UML class diagram builder
@@ -97,6 +101,22 @@ class ClassDiagramBuilder
         return $vertex;
     }
 
+    public function createVertexExtension($extension)
+    {
+        if ($extension instanceof ReflectionExtension) {
+            $reflection = $class;
+            $extension = $reflection->getName();
+        } else {
+            $reflection = new ReflectionExtension($extension);
+        }
+
+        $vertex = $this->graph->createVertex($extension);
+        $vertex->setLayoutAttribute('shape', 'record');
+        $vertex->setLayoutAttribute('label', GraphViz::raw($this->getLabelRecordExtension($reflection)));
+
+        return $vertex;
+    }
+
     /**
      * get label (for shape record) for the given reflection class
      *
@@ -120,13 +140,7 @@ class ClassDiagramBuilder
 
         $label .= $this->escape($class) . '|';
 
-        if ($this->options['show-constants']) {
-            foreach ($reflection->getConstants() as $name => $value) {
-                if($this->options['only-self'] && $parent && $parent->getConstant($name) === $value) continue;
-
-                $label .= '+ «static» ' . $this->escape($name) . ' : ' . $this->escape($this->getType(gettype($value))) . ' = ' . $this->getCasted($value) . ' \\{readOnly\\}\\l';
-            }
-        }
+        $label .= $this->getLabelRecordConstants($reflection);
 
         $defaults = $reflection->getDefaultProperties();
         foreach ($reflection->getProperties() as $property) {
@@ -155,22 +169,93 @@ class ClassDiagramBuilder
 
         $label .= '|';
 
-        foreach ($reflection->getMethods() as $method) {
-            // method not defined in this class (inherited from parent), so skip
-            if($this->options['only-self'] && $method->getDeclaringClass()->getName() !== $class) continue;
+        $label .= $this->getLabelRecordFunctions($reflection->getMethods(), $class);
 
-            if (!$this->isVisible($method)) continue;
+        $label .= '}"';
 
-            // $ref = preg_replace('/[^a-z0-9]/i', '', $method->getName());
-            // $label .= '<"' . $ref . '">';
+        return $label;
+    }
 
-            $label .= $this->visibility($method);
+    /**
+     * get label (for shape record) for the given reflection extension module
+     *
+     * @param ReflectionExtension $reflection
+     * @return string
+     */
+    protected function getLabelRecordExtension(ReflectionExtension $reflection)
+    {
+        $extension  = $reflection->getName();
 
-            if (!$isInterface && $method->isAbstract()) {
-                $label .= ' «abstract»';
+        $label  = '"{«extension»\\n';
+        $label .= $this->escape($extension) . '|';
+
+        $label .= $this->getLabelRecordConstants($reflection);
+
+        $label .= '|';
+
+        $label .= $this->getLabelRecordFunctions($reflection->getFunctions());
+
+        $label .= '}"';
+
+        return $label;
+    }
+
+    /**
+     * get string describing the constants from the given reflection class or extension module
+     *
+     * @param ReflectionClass|ReflectionExtension $reflection
+     * @return string
+     */
+    protected function getLabelRecordConstants($reflection)
+    {
+        $label = '';
+        if ($this->options['show-constants']) {
+            $parent = null;
+            if ($reflection instanceof ReflectionClass) {
+                $parent = $reflection->getParentClass();
             }
-            if ($method->isStatic()) {
-                $label .= ' «static»';
+            foreach ($reflection->getConstants() as $name => $value) {
+                if($this->options['only-self'] && $parent && $parent->getConstant($name) === $value) continue;
+
+                $label .= '+ «static» ' . $this->escape($name) . ' : ' . $this->escape($this->getType(gettype($value))) . ' = ' . $this->getCasted($value) . ' \\{readOnly\\}\\l';
+            }
+        }
+
+        return $label;
+    }
+
+    /**
+     * get string describing the given array of reflection methods / functions
+     *
+     * @param ReflectionMethod[]|ReflectionFunction[] $functions
+     * @param string|null                             $class
+     * @return string
+     */
+    protected function getLabelRecordFunctions(array $functions, $class = null)
+    {
+        $label = '';
+        foreach ($functions as $method) {
+            if ($method instanceof ReflectionMethod) {
+                // method not defined in this class (inherited from parent), so skip
+                if($this->options['only-self'] && $method->getDeclaringClass()->getName() !== $class) continue;
+
+                if (!$this->isVisible($method)) continue;
+
+                // $ref = preg_replace('/[^a-z0-9]/i', '', $method->getName());
+                // $label .= '<"' . $ref . '">';
+
+                $label .= $this->visibility($method);
+
+                if (/*!$isInterface && */$method->isAbstract()) {
+                    $label .= ' «abstract»';
+                }
+                if ($method->isStatic()) {
+                    $label .= ' «static»';
+                }
+            } else {
+                // ReflectionFunction does not define any of the above accessors
+                // simply pretend this is a "normal" public method
+                $label .= '+ ';
             }
             $label .= ' ' . $this->escape($method->getName()) . '(';
 
@@ -211,8 +296,6 @@ class ClassDiagramBuilder
             // align this line to the left
             $label .= '\\l';
         }
-
-        $label .= '}"';
 
         return $label;
     }
