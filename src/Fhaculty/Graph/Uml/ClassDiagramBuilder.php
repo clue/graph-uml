@@ -263,6 +263,7 @@ class ClassDiagramBuilder
 
             $firstParam = true;
             foreach ($method->getParameters() as $parameter) {
+                /* @var $parameter ReflectionParameter */
                 if ($firstParam) {
                     $firstParam = false;
                 } else {
@@ -376,11 +377,13 @@ class ClassDiagramBuilder
      * get total number of connected components
      *
      * @return int
-     * @uses Graph::getNumberOfComponents()
+     * @uses AlgorithmConnectedComponents::getNumberOfComponents()
      */
     public function getNumberOfComponents()
     {
-        return $this->graph->getNumberOfComponents();
+        $alg = new AlgorithmConnectedComponents($this->graph);
+
+        return $alg->getNumberOfComponents();
     }
 
     private function getDocBlock($ref)
