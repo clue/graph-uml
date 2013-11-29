@@ -40,6 +40,8 @@ class ClassDiagramBuilder
         'show-protected' => true,
         // whether to show class constants as readonly static variables (or just omit them completely)
         'show-constants' => true,
+        // whether to show add parent classes or interfaces
+        'add-parents' => true,
     );
 
     public function __construct(Graph $graph)
@@ -76,25 +78,29 @@ class ClassDiagramBuilder
         } else {
             $reflection = new ReflectionClass($class);
         }
-        $vertex = $this->graph->createVertex($class);
-
-        $parent = $reflection->getParentClass();
-        if ($parent) {
-            try {
-                $parentVertex = $this->graph->getVertex($parent->getName());
-            } catch (Exception $ignore) {
-                $parentVertex = $this->createVertexClass($parent);
-            }
-            $vertex->createEdgeTo($parentVertex)->setLayoutAttribute('arrowhead', 'empty');
+        if ($this->graph->hasVertex($class)) {
+            return;
         }
-
-        foreach ($reflection->getInterfaces() as $interface) {
-            try {
-                $parentVertex = $this->graph->getVertex($interface->getName());
-            } catch (Exception $ignore) {
-                $parentVertex = $this->createVertexClass($interface);
+        $vertex = $this->graph->createVertex($class);
+        if ($this->options['add-parents']) {
+            $parent = $reflection->getParentClass();
+            if ($parent) {
+                try {
+                    $parentVertex = $this->graph->getVertex($parent->getName());
+                } catch (Exception $ignore) {
+                    $parentVertex = $this->createVertexClass($parent);
+                }
+                $vertex->createEdgeTo($parentVertex)->setLayoutAttribute('arrowhead', 'empty');
             }
-            $vertex->createEdgeTo($parentVertex)->setLayoutAttribute('arrowhead', 'empty')->setLayoutAttribute('style', 'dashed');
+
+            foreach ($reflection->getInterfaces() as $interface) {
+                try {
+                    $parentVertex = $this->graph->getVertex($interface->getName());
+                } catch (Exception $ignore) {
+                    $parentVertex = $this->createVertexClass($interface);
+                }
+                $vertex->createEdgeTo($parentVertex)->setLayoutAttribute('arrowhead', 'empty')->setLayoutAttribute('style', 'dashed');
+            }
         }
 
         $vertex->setLayoutAttribute('shape', 'record');
