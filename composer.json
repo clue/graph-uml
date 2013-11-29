@@ -2,9 +2,7 @@
     "name": "fhaculty/graph-uml",
     "type": "library",
     "description": "Generate UML class diagrams by reflection for your PHP projects",
-    "keywords": ["graph", "UML", "reflection"],
-    "description": "Generate UML class diagrams for your PHP projects",
-    "keywords": ["UML class diagram"],
+    "keywords": ["graph", "UML", "Class Diagram", "Reflection"],
     "homepage": "https://github.com/fhaculty/graph-uml",
     "license": "MIT",
     "autoload": {
