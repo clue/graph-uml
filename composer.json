@@ -1,5 +1,5 @@
 {
-    "name": "fhaculty/graph-uml",
+    "name": "clue/graph-uml",
     "type": "library",
     "description": "Generate UML class diagrams for your PHP projects",
     "keywords": ["UML class diagram"],
