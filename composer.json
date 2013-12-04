@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Generate UML class diagrams for your PHP projects",
     "keywords": ["UML class diagram"],
-    "homepage": "https://github.com/fhaculty/graph-uml",
+    "homepage": "https://github.com/clue/graph-uml",
     "license": "MIT",
     "autoload": {
         "psr-0": {"Fhaculty": "src/"}
