@@ -124,12 +124,16 @@ class ClassDiagramBuilder
      *
      * @param ReflectionClass $reflection
      * @return string
+     *
+     * @see http://graphviz.org/content/node-shapes#record
+     * @see http://graphviz.org/content/attrs#kescString
      */
     protected function getLabelRecordClass(ReflectionClass $reflection)
     {
         $class  = $reflection->getName();
         $parent = $reflection->getParentClass();
 
+        // start 'over'
         $label  = '"{';
 
         $isInterface = false;
@@ -140,6 +144,7 @@ class ClassDiagramBuilder
             $label .= '«abstract»\\n';
         }
 
+        // new cell
         $label .= $this->escape($class) . '|';
 
         $label .= $this->getLabelRecordConstants($reflection);
@@ -166,13 +171,16 @@ class ClassDiagramBuilder
                 $label .= ' = ' . $this->getCasted($defaults[$property->getName()]);
             }
 
+            // align this line to the left
             $label .= '\\l';
         }
 
+        // new cell
         $label .= '|';
 
         $label .= $this->getLabelRecordFunctions($reflection->getMethods(), $class);
 
+        // end 'over'
         $label .= '}"';
 
         return $label;
@@ -188,8 +196,12 @@ class ClassDiagramBuilder
     {
         $extension  = $reflection->getName();
 
-        $label  = '"{«extension»\\n';
-        $label .= $this->escape($extension) . '|';
+        $label  = '"{';
+
+        $label .= '«extension»\\n';
+        $label .= $this->escape($extension);
+
+        $label .= '|';
 
         $label .= $this->getLabelRecordConstants($reflection);
 
