@@ -1,9 +1,9 @@
 {
-    "name": "fhaculty/graph-uml",
+    "name": "clue/graph-uml",
     "type": "library",
     "description": "Generate UML class diagrams by reflection for your PHP projects",
     "keywords": ["graph", "UML", "Class Diagram", "Reflection"],
-    "homepage": "https://github.com/fhaculty/graph-uml",
+    "homepage": "https://github.com/clue/graph-uml",
     "license": "MIT",
     "autoload": {
         "psr-0": {"Fhaculty": "src/"}
