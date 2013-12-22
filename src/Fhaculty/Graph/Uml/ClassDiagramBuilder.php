@@ -78,9 +78,6 @@ class ClassDiagramBuilder
         } else {
             $reflection = new ReflectionClass($class);
         }
-        if ($this->graph->hasVertex($class)) {
-            return;
-        }
         $vertex = $this->graph->createVertex($class);
         if ($this->options['add-parents']) {
             $parent = $reflection->getParentClass();
