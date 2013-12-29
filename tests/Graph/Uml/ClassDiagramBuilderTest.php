@@ -2,10 +2,13 @@
 
 class ClassDiagramBuilderTest extends TestCase
 {
+    private $graph;
+    private $builder;
+
     public function setup()
     {
         $this->graph = new Fhaculty\Graph\Graph();
-        $this->builder = new Fhaculty\Graph\Uml\ClassDiagramBuilder($graph);
+        $this->builder = new Fhaculty\Graph\Uml\ClassDiagramBuilder($this->graph);
     }
 
     public function testParentChildSuccess()
