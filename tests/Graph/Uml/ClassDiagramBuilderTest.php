@@ -1,6 +1,6 @@
 <?php
 
-class ClassDiagramBuilderTest extends \TestCase
+class ClassDiagramBuilderTest extends TestCase
 {
     private $graph;
     private $builder;
