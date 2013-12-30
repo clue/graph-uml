@@ -31,20 +31,33 @@ class ClassDiagramBuilder
      */
     private $graph;
 
-    private $options = array(
-        // whether to only show methods/properties that are actually defined in this class (and not those merely inherited from base)
-        'only-self'   => true,
-        // whether to also show private methods/properties
-        'show-private' => false,
-        // whether to also show protected methods/properties
-        'show-protected' => true,
-        // whether to show class constants as readonly static variables (or just omit them completely)
-        'show-constants' => true,
+    static $options_data = array(
+        'only-self'   => array(
+            'default' => true,
+            'description' => 'whether to only show methods/properties that are actually defined in this class (and not those merely inherited from base)',
+        ),
+        'show-private' => array(
+            'default' => false,
+            'description' => 'whether to also show private methods/properties',
+        ),
+        'show-protected' => array(
+            'default' => true,
+            'description' => 'whether to also show protected methods/properties',
+        ),
+        'show-constants' => array(
+            'default' => true,
+            'description' => 'whether to show class constants as readonly static variables (or just omit them completely)',
+        ),
     );
+
+    private $options = array();
 
     public function __construct(Graph $graph)
     {
         $this->graph = $graph;
+        foreach(self::$options_data as $key => $data) {
+          $this->options[$key] = $data['default'];
+        }
     }
 
     public function setOption($name, $flag)
