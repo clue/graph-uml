@@ -6,13 +6,13 @@
          convertWarningsToExceptions="true"
 >
     <testsuites>
-        <testsuite name="Graph Test Suite">
+        <testsuite name="clue/graph-uml Test Suite">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist>
-            <directory>./lib</directory>
+            <directory>./src</directory>
         </whitelist>
     </filter>
 </phpunit>
