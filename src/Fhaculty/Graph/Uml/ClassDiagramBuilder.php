@@ -563,7 +563,7 @@ class ClassDiagramBuilder
         // remove each interface already implemented by any of the inherited interfaces
         foreach ($interfaces as $if) {
             foreach ($if->getInterfaceNames() as $in) {
-                //unset($interfaces[$in]);
+                unset($interfaces[$in]);
             }
         }
 
