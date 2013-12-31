@@ -90,7 +90,7 @@ class ClassDiagramBuilder
                 $vertex->createEdgeTo($parentVertex)->setLayoutAttribute('arrowhead', 'empty');
             }
 
-            foreach ($reflection->getInterfaces() as $interface) {
+            foreach ($this->getInterfaces($reflection) as $interface) {
                 try {
                     $parentVertex = $this->graph->getVertex($interface->getName());
                 } catch (Exception $ignore) {
@@ -545,5 +545,28 @@ class ClassDiagramBuilder
     private function escape($id)
     {
         return preg_replace('/([^\\w])/u', '\\\\$1', str_replace(array("\r", "\n", "\t"), array('\\r', '\\n', '\\t'), $id));
+    }
+
+    private function getInterfaces(ReflectionClass $reflection)
+    {
+        // a list of all interfaces implemented explicitly or implicitly
+        $interfaces = $reflection->getInterfaces();
+
+        // remove each interface already implemented by the parent class (if any)
+        $parent = $reflection->getParentClass();
+        if ($parent) {
+            foreach ($parent->getInterfaceNames() as $in) {
+                unset($interfaces[$in]);
+            }
+        }
+
+        // remove each interface already implemented by any of the inherited interfaces
+        foreach ($interfaces as $if) {
+            foreach ($if->getInterfaceNames() as $in) {
+                unset($interfaces[$in]);
+            }
+        }
+
+        return $interfaces;
     }
 }
