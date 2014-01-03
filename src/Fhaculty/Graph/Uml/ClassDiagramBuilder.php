@@ -72,14 +72,12 @@ class ClassDiagramBuilder
 
     public function createVertexClass($class)
     {
-        if (is_string($class)) {
-            // Reflection works without first \ so make sure we don't inject them
-            $class = ltrim($class, '\\');
-        }
         if ($class instanceof ReflectionClass) {
             $reflection = $class;
             $class = $reflection->getName();
         } else {
+            // Reflection works without first \ so make sure we don't inject them
+            $class = ltrim($class, '\\');
             $reflection = new ReflectionClass($class);
         }
         $vertex = $this->graph->createVertex($class);
