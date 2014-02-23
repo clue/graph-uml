@@ -1,5 +1,7 @@
 <?php
 
+use Fhaculty\Graph\GraphViz;
+
 class ClassDiagramBuilderTest extends TestCase
 {
     private $graph;
@@ -31,4 +33,16 @@ class ClassDiagramBuilderTest extends TestCase
         $this->builder->createVertexClass('Fhaculty\Graph\Edge\Base');
     }
 
+    public function testRendering() {
+        $path = __DIR__;
+
+        $this->builder->createVertexClass('Fhaculty\Graph\Edge\Directed');
+        foreach($this->builder->createGraphsComponents() as $graph){
+            $graphviz = new GraphViz($graph);
+            $result = $graphviz->createScript();
+            file_put_contents(__DIR__ . '/output.dot', $result);
+            var_dump($result);
+
+        };
+    }
 }
