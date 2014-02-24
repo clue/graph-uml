@@ -4,7 +4,7 @@ This file is a manually maintained list of changes for each release. Feel free
 to add your changes here when sending pull requests. Also send corrections if
 you spot any mistakes.
 
-## 0.2.0 (2014-02-XX)
+## 0.2.0 (2014-02-24)
 
 *   Fix: Skip transitive dependencies, i.e. interfaces implicitly extended due
     to inheritence

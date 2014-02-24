@@ -2,7 +2,7 @@
 
 Generate UML class diagrams by reflection for your PHP projects
 
-> Note: This project is in early alpha stage! Feel free to report any issues you encounter.
+> Note: This project is in beta stage! Feel free to report any issues you encounter.
 
 ## Quickstart example
 
@@ -29,7 +29,7 @@ The recommended way to install this library is [through composer](http://getcomp
 ```JSON
 {
     "require": {
-        "clue/graph-uml": "dev-master"
+        "clue/graph-uml": "0.2.*"
     }
 }
 ```
