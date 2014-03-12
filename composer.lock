@@ -7,16 +7,16 @@
     "packages": [
         {
             "name": "clue/graph",
-            "version": "v0.7.0",
+            "version": "v0.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/clue/graph.git",
-                "reference": "d0d548a21b09099a266eacba8e4098aeae6409f8"
+                "reference": "f4c2c2c2419e938299a85bf700a8da8c301b904d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/clue/graph/zipball/d0d548a21b09099a266eacba8e4098aeae6409f8",
-                "reference": "d0d548a21b09099a266eacba8e4098aeae6409f8",
+                "url": "https://api.github.com/repos/clue/graph/zipball/f4c2c2c2419e938299a85bf700a8da8c301b904d",
+                "reference": "f4c2c2c2419e938299a85bf700a8da8c301b904d",
                 "shasum": ""
             },
             "require": {
@@ -51,7 +51,7 @@
                 "shortest path",
                 "vertex"
             ],
-            "time": "2013-09-11 22:52:40"
+            "time": "2014-03-12 22:54:24"
         }
     ],
     "packages-dev": [
