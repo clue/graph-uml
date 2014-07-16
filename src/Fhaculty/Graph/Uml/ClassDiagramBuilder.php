@@ -102,8 +102,8 @@ class ClassDiagramBuilder
             }
         }
 
-        $vertex->setLayoutAttribute('shape', 'record');
-        $vertex->setLayoutAttribute('label', GraphViz::raw($this->getLabelRecordClass($reflection)));
+        $vertex->setLayoutAttribute('shape', 'none');
+        $vertex->setLayoutAttribute('label', GraphViz::raw($this->getLabelTableClass($reflection)));
 
         return $vertex;
     }
@@ -191,6 +191,72 @@ class ClassDiagramBuilder
         return $label;
     }
 
+    protected function getLabelTableClass(ReflectionClass $reflection)
+    {
+        $class  = $reflection->getName();
+        $parent = $reflection->getParentClass();
+
+        $rows = array();
+        $isInterface = false;
+        if ($reflection->isInterface()) {
+            $rows[] = '«interface»';
+            $isInterface = true;
+        } elseif ($reflection->isAbstract()) {
+            $rows[]= '«abstract»';
+        }
+
+
+        $rows['constants'] = $this->getLabelTableConstants($reflection);
+
+        $properties = array();
+
+        $defaults = $reflection->getDefaultProperties();
+        foreach ($reflection->getProperties() as $property) {
+            $label = '';
+            if($this->options['only-self'] && $property->getDeclaringClass()->getName() !== $class) continue;
+
+            if (!$this->isVisible($property)) continue;
+
+            $label = $this->visibility($property);
+            if ($property->isStatic()) {
+                $label .= ' «static»';
+            }
+            $label .= ' ' . $this->escape($property->getName());
+
+            $type = $this->getDocBlockVar($property);
+            if ($type !== NULL) {
+                $label .= ' : ' . $this->escape($type);
+            }
+
+            // only show non-NULL values
+            if (isset($defaults[$property->getName()])) {
+                $label .= ' = ' . $this->getCasted($defaults[$property->getName()]);
+            }
+
+            $properties[] = $label;
+        }
+
+
+        $rows['properties'] = $properties;
+
+        $rows['functions'] = $this->getLabelTableFunctions($reflection->getMethods(), $class);
+
+        $label = '<<table>';
+
+        foreach( $rows as $key => $row) {
+            if (!is_array($row)) {
+            $label.= '<tr><td>' . $row . '</td></tr>';
+          } else {
+              if (!empty($row)) {
+                $label .= '<tr><td>' . $key . '</td></tr>'
+                    . '<tr><td><table><tr><td>' . join('</td></tr><tr><td>', $row) . '</td></tr></table></td></tr>';
+              }
+          }
+        }
+        $label .= '</table>>';
+        return $label;
+    }
+
     /**
      * get label (for shape record) for the given reflection extension module
      *
@@ -241,6 +307,30 @@ class ClassDiagramBuilder
         }
 
         return $label;
+    }
+
+    /**
+     * get string describing the constants from the given reflection class or extension module
+     *
+     * @param ReflectionClass|ReflectionExtension $reflection
+     * @return string
+     */
+    protected function getLabelTableConstants($reflection)
+    {
+        $rows = array();
+        if ($this->options['show-constants']) {
+            $parent = null;
+            if ($reflection instanceof ReflectionClass) {
+                $parent = $reflection->getParentClass();
+            }
+            foreach ($reflection->getConstants() as $name => $value) {
+                if($this->options['only-self'] && $parent && $parent->getConstant($name) === $value) continue;
+
+                $rows[] = '+ «static» ' . $this->escape($name) . ' : ' . $this->escape($this->getType(gettype($value))) . ' = ' . $this->getCasted($value) . ' {readOnly}';
+            }
+        }
+
+        return $rows;
     }
 
     /**
@@ -318,6 +408,83 @@ class ClassDiagramBuilder
         }
 
         return $label;
+    }
+
+    /**
+     * get string describing the given array of reflection methods / functions
+     *
+     * @param ReflectionMethod[]|ReflectionFunction[] $functions
+     * @param string|null                             $class
+     * @return string
+     */
+    protected function getLabelTableFunctions(array $functions, $class = null)
+    {
+        $rows = array();
+        foreach ($functions as $method) {
+            $label = '';
+            if ($method instanceof ReflectionMethod) {
+                // method not defined in this class (inherited from parent), so skip
+                if($this->options['only-self'] && $method->getDeclaringClass()->getName() !== $class) continue;
+
+                if (!$this->isVisible($method)) continue;
+
+                // $ref = preg_replace('/[^a-z0-9]/i', '', $method->getName());
+                // $label .= '<"' . $ref . '">';
+
+                $label .= $this->visibility($method);
+
+                if (/*!$isInterface && */$method->isAbstract()) {
+                    $label .= ' «abstract»';
+                }
+                if ($method->isStatic()) {
+                    $label .= ' «static»';
+                }
+            } else {
+                // ReflectionFunction does not define any of the above accessors
+                // simply pretend this is a "normal" public method
+                $label .= '+ ';
+            }
+            $label .= ' ' . $this->escape($method->getName()) . '(';
+
+            $firstParam = true;
+            foreach ($method->getParameters() as $parameter) {
+                /* @var $parameter ReflectionParameter */
+                if ($firstParam) {
+                    $firstParam = false;
+                } else {
+                    $label .= ', ';
+                }
+
+                if ($parameter->isPassedByReference()) {
+                    $label .= 'inout ';
+                }
+
+                $label .= $this->escape($parameter->getName());
+
+                $type = $this->getParameterType($parameter);
+                if ($type !== NULL) {
+                    $label .= ' : ' . $this->escape($type);
+                }
+
+                if ($parameter->isOptional()) {
+                    try {
+                        $label .= ' = ' . $this->getCasted($parameter->getDefaultValue());
+                    } catch (Exception $ignore) {
+                        $label .= ' = «unknown»';
+                    }
+                }
+            }
+            $label .= ')';
+
+            $type = $this->getDocBlockReturn($method);
+            if ($type !== NULL) {
+                $label .= ' : ' . $this->escape($type);
+            }
+
+            $rows[] = $label;
+        }
+
+        return $rows;
     }
 
     /**
