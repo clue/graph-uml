@@ -80,7 +80,7 @@ class ClassDiagramBuilder
             $class = ltrim($class, '\\');
             $reflection = new ReflectionClass($class);
         }
-        $vertex = $this->graph->createVertex($class);
+        $vertex = $this->graph->createVertex($class, TRUE);
         if ($this->options['add-parents']) {
             $parent = $reflection->getParentClass();
             if ($parent) {
