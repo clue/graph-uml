@@ -3,6 +3,7 @@
 class ClassDiagramBuilderTest extends TestCase
 {
     private $graph;
+    /** @var \Fhaculty\Graph\Uml\ClassDiagramBuilder */
     private $builder;
 
     public function setup()
@@ -13,8 +14,8 @@ class ClassDiagramBuilderTest extends TestCase
 
     public function testParentChildSuccess()
     {
-        $this->builder->createVertexClass('Fhaculty\Graph\Edge\Base');
-        $this->builder->createVertexClass('Fhaculty\Graph\Edge\Directed');
+        $this->assertInstanceOf('Fhaculty\Graph\Vertex', $this->builder->createVertexClass('Fhaculty\Graph\Edge\Base'));
+        $this->assertInstanceOf('Fhaculty\Graph\Vertex', $this->builder->createVertexClass('Fhaculty\Graph\Edge\Directed'));
     }
 
     /**

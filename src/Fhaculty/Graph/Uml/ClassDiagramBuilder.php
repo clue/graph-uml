@@ -2,25 +2,25 @@
 
 namespace Fhaculty\Graph\Uml;
 
-use Fhaculty\Graph\GraphViz;
-use Fhaculty\Graph\Graph;
-use Fhaculty\Graph\Vertex;
+use Exception;
 use Fhaculty\Graph\Algorithm\ConnectedComponents as AlgorithmConnectedComponents;
-use \Exception;
-use \ReflectionClass;
-use \ReflectionParameter;
-use \ReflectionProperty;
-use \ReflectionExtension;
-use \ReflectionFunction;
-use \ReflectionMethod;
+use Fhaculty\Graph\Graph;
+use Fhaculty\Graph\GraphViz;
+use Fhaculty\Graph\Vertex;
+use ReflectionClass;
+use ReflectionExtension;
+use ReflectionFunction;
+use ReflectionMethod;
+use ReflectionParameter;
+use ReflectionProperty;
 
 /**
  * UML class diagram builder
  *
  * @author clue
- * @link http://www.johndeacon.net/UML/UML_Appendix/Generated/UML_Appendix.asp
- * @link http://www.ffnn.nl/pages/articles/media/uml-diagrams-using-graphviz-dot.php
- * @link http://www.holub.com/goodies/uml/
+ * @link   http://www.johndeacon.net/UML/UML_Appendix/Generated/UML_Appendix.asp
+ * @link   http://www.ffnn.nl/pages/articles/media/uml-diagrams-using-graphviz-dot.php
+ * @link   http://www.holub.com/goodies/uml/
  */
 class ClassDiagramBuilder
 {
@@ -31,9 +31,9 @@ class ClassDiagramBuilder
      */
     private $graph;
 
-    private $options = array(
+    private $options = [
         // whether to only show methods/properties that are actually defined in this class (and not those merely inherited from base)
-        'only-self'   => true,
+        'only-self' => true,
         // whether to also show private methods/properties
         'show-private' => false,
         // whether to also show protected methods/properties
@@ -42,7 +42,7 @@ class ClassDiagramBuilder
         'show-constants' => true,
         // whether to show add parent classes or interfaces
         'add-parents' => true,
-    );
+    ];
 
     public function __construct(Graph $graph)
     {
@@ -65,12 +65,13 @@ class ClassDiagramBuilder
             $this->graph->getVertex($class);
 
             return true;
-        } catch (Exception $ignroe) {}
+        } catch (Exception $ignroe) {
+        }
 
         return false;
     }
 
-    public function createVertexClass($class)
+    public function createVertexClass($class): \Fhaculty\Graph\Vertex
     {
         if ($class instanceof ReflectionClass) {
             $reflection = $class;
@@ -128,6 +129,7 @@ class ClassDiagramBuilder
      * get label (for shape record) for the given reflection class
      *
      * @param ReflectionClass $reflection
+     *
      * @return string
      *
      * @see http://graphviz.org/content/node-shapes#record
@@ -135,11 +137,11 @@ class ClassDiagramBuilder
      */
     protected function getLabelRecordClass(ReflectionClass $reflection)
     {
-        $class  = $reflection->getName();
+        $class = $reflection->getName();
         $parent = $reflection->getParentClass();
 
         // start 'over'
-        $label  = '"{';
+        $label = '"{';
 
         $isInterface = false;
         if ($reflection->isInterface()) {
@@ -156,7 +158,7 @@ class ClassDiagramBuilder
 
         $defaults = $reflection->getDefaultProperties();
         foreach ($reflection->getProperties() as $property) {
-            if($this->options['only-self'] && $property->getDeclaringClass()->getName() !== $class) continue;
+            if ($this->options['only-self'] && $property->getDeclaringClass()->getName() !== $class) continue;
 
             if (!$this->isVisible($property)) continue;
 
@@ -167,7 +169,7 @@ class ClassDiagramBuilder
             $label .= ' ' . $this->escape($property->getName());
 
             $type = $this->getDocBlockVar($property);
-            if ($type !== NULL) {
+            if ($type !== null) {
                 $label .= ' : ' . $this->escape($type);
             }
 
@@ -195,13 +197,14 @@ class ClassDiagramBuilder
      * get label (for shape record) for the given reflection extension module
      *
      * @param ReflectionExtension $reflection
+     *
      * @return string
      */
     protected function getLabelRecordExtension(ReflectionExtension $reflection)
     {
-        $extension  = $reflection->getName();
+        $extension = $reflection->getName();
 
-        $label  = '"{';
+        $label = '"{';
 
         $label .= '«extension»\\n';
         $label .= $this->escape($extension);
@@ -223,6 +226,7 @@ class ClassDiagramBuilder
      * get string describing the constants from the given reflection class or extension module
      *
      * @param ReflectionClass|ReflectionExtension $reflection
+     *
      * @return string
      */
     protected function getLabelRecordConstants($reflection)
@@ -234,7 +238,7 @@ class ClassDiagramBuilder
                 $parent = $reflection->getParentClass();
             }
             foreach ($reflection->getConstants() as $name => $value) {
-                if($this->options['only-self'] && $parent && $parent->getConstant($name) === $value) continue;
+                if ($this->options['only-self'] && $parent && $parent->getConstant($name) === $value) continue;
 
                 $label .= '+ «static» ' . $this->escape($name) . ' : ' . $this->escape($this->getType(gettype($value))) . ' = ' . $this->getCasted($value) . ' \\{readOnly\\}\\l';
             }
@@ -248,6 +252,7 @@ class ClassDiagramBuilder
      *
      * @param ReflectionMethod[]|ReflectionFunction[] $functions
      * @param string|null                             $class
+     *
      * @return string
      */
     protected function getLabelRecordFunctions(array $functions, $class = null)
@@ -256,7 +261,7 @@ class ClassDiagramBuilder
         foreach ($functions as $method) {
             if ($method instanceof ReflectionMethod) {
                 // method not defined in this class (inherited from parent), so skip
-                if($this->options['only-self'] && $method->getDeclaringClass()->getName() !== $class) continue;
+                if ($this->options['only-self'] && $method->getDeclaringClass()->getName() !== $class) continue;
 
                 if (!$this->isVisible($method)) continue;
 
@@ -265,7 +270,8 @@ class ClassDiagramBuilder
 
                 $label .= $this->visibility($method);
 
-                if (/*!$isInterface && */$method->isAbstract()) {
+                if (/*!$isInterface && */
+                $method->isAbstract()) {
                     $label .= ' «abstract»';
                 }
                 if ($method->isStatic()) {
@@ -294,7 +300,7 @@ class ClassDiagramBuilder
                 $label .= $this->escape($parameter->getName());
 
                 $type = $this->getParameterType($parameter);
-                if ($type !== NULL) {
+                if ($type !== null) {
                     $label .= ' : ' . $this->escape($type);
                 }
 
@@ -309,7 +315,7 @@ class ClassDiagramBuilder
             $label .= ')';
 
             $type = $this->getDocBlockReturn($method);
-            if ($type !== NULL) {
+            if ($type !== null) {
                 $label .= ' : ' . $this->escape($type);
             }
 
@@ -324,35 +330,37 @@ class ClassDiagramBuilder
      * check if the given method/property reflection object should be visible
      *
      * @param ReflectionClass|ReflectionProperty $reflection
+     *
      * @return boolean
      */
     protected function isVisible($reflection)
     {
         return ($reflection->isPublic() ||
-                ($reflection->isProtected() && $this->options['show-protected']) ||
-                ($reflection->isPrivate() && $this->options['show-private']));
+            ($reflection->isProtected() && $this->options['show-protected']) ||
+            ($reflection->isPrivate() && $this->options['show-private']));
     }
 
     /**
      * create new uml note (attached to given class vertex)
      *
-     * @param  string                $note
-     * @param  Vertex|NULL           $for
+     * @param  string      $note
+     * @param  Vertex|NULL $for
+     *
      * @return LoaderUmlClassDiagram $this (chainable)
      */
-    public function createVertexNote($note, $for = NULL)
+    public function createVertexNote($note, $for = null)
     {
-        $vertex = $this->graph->createVertex()->setLayoutAttribute('label', $note."\n")
-                                              ->setLayoutAttribute('shape', 'note')
-                                                ->setLayoutAttribute('fontsize', 8)
-                                              // ->setLayoutAttribute('margin', '0 0')
-                                              ->setLayoutAttribute('style', 'filled')
-                                              ->setLayoutAttribute('fillcolor', 'yellow');
+        $vertex = $this->graph->createVertex()->setLayoutAttribute('label', $note . "\n")
+            ->setLayoutAttribute('shape', 'note')
+            ->setLayoutAttribute('fontsize', 8)
+            // ->setLayoutAttribute('margin', '0 0')
+            ->setLayoutAttribute('style', 'filled')
+            ->setLayoutAttribute('fillcolor', 'yellow');
 
-        if ($for !== NULL) {
+        if ($for !== null) {
             $vertex->createEdgeTo($for)->setLayoutAttribute('len', 1)
-            ->setLayoutAttribute('style', 'dashed')
-            ->setLayoutAttribute('arrowhead', 'none');
+                ->setLayoutAttribute('style', 'dashed')
+                ->setLayoutAttribute('arrowhead', 'none');
         }
 
         return $vertex;
@@ -361,7 +369,8 @@ class ClassDiagramBuilder
     /**
      * create subgraph for all classes connected to given class (i.e. return it's connected component)
      *
-     * @param  string    $class
+     * @param  string $class
+     *
      * @return Graph
      * @throws Exception
      */
@@ -410,7 +419,7 @@ class ClassDiagramBuilder
             return trim(preg_replace('/(^(?:\h*\*)\h*|\h+$)/m', '', substr($doc, 3, -2)));
         }
 
-        return NULL;
+        return null;
     }
 
     private function getDocBlockVar($ref)
@@ -425,16 +434,16 @@ class ClassDiagramBuilder
 
     private function getParameterType(ReflectionParameter $parameter)
     {
-        $class = NULL;
+        $class = null;
         try {
             // get class hint for parameter
             $class = $parameter->getClass();
-        // will fail if specified class does not exist
+            // will fail if specified class does not exist
         } catch (Exception $ignore) {
             return '«invalidClass»';
         }
 
-        if ($class !== NULL) {
+        if ($class !== null) {
             return $class->getName();
         }
 
@@ -445,20 +454,19 @@ class ClassDiagramBuilder
             return $this->getType($params[$pos]);
         }
 
-        return NULL;
+        return null;
     }
 
-    private function getDocBlockMulti($ref, $what)
+    private function getDocBlockMulti($ref, $what): array
     {
         $doc = $this->getDocBlock($ref);
-        if ($doc === NULL) {
-            // return 'nah';
-            return NULL;
+        if ($doc === null) {
+            return [];
         }
         preg_match_all('/^@' . $what . ' ([^\s]+)/m', $doc, $matches, PREG_SET_ORDER);
-        $ret = array();
+        $ret = [];
         foreach ($matches as $match) {
-            $ret []= trim($match[1]);
+            $ret [] = trim($match[1]);
         }
 
         return $ret;
@@ -469,16 +477,16 @@ class ClassDiagramBuilder
         $multi = $this->getDocBlockMulti($ref, $what);
         if (count($multi) !== 1) {
             // return json_encode($matches);
-            return NULL;
+            return null;
         }
 
         return $multi[0];
     }
 
-    private function getType($ret)
+    private function getType(string $ret = null): ?string
     {
-        if ($ret === NULL) {
-            return NULL;
+        if ($ret === null) {
+            return null;
         }
         if (preg_match('/^array\[(\w+)\]$/i', $ret, $match)) {
             return $this->getType($match[1]) . '[]';
@@ -493,7 +501,7 @@ class ClassDiagramBuilder
             $ret = 'float';
         } elseif ($low === 'boolean') {
             return 'bool';
-        } elseif (in_array($low, array('int', 'float', 'bool', 'string', 'null', 'resource', 'array', 'void', 'mixed'))) {
+        } elseif (in_array($low, ['int', 'float', 'bool', 'string', 'null', 'resource', 'array', 'void', 'mixed'])) {
             return $low;
         }
 
@@ -503,22 +511,23 @@ class ClassDiagramBuilder
     /**
      * get given value casted to string (and escaped in double quotes it needed)
      *
-     * @param  mixed  $value
+     * @param  mixed $value
+     *
      * @return string
      * @uses LoaderUmlClassDiagram::escape()
      */
     private function getCasted($value)
     {
-        if ($value === NULL) {
+        if ($value === null) {
             return 'NULL';
         } elseif (is_string($value)) {
             return '\\"' . $this->escape(str_replace('"', '\\"', $value)) . '\\"';
         } elseif (is_bool($value)) {
             return $value ? 'true' : 'false';
         } elseif (is_int($value) || is_float($value)) {
-            return (string) $value;
+            return (string)$value;
         } elseif (is_array($value)) {
-            if ($value === array()) {
+            if ($value === []) {
                 return '[]';
             } else {
                 return '[…]';
@@ -546,7 +555,7 @@ class ClassDiagramBuilder
 
     private function escape($id)
     {
-        return preg_replace('/([^\\w])/u', '\\\\$1', str_replace(array("\r", "\n", "\t"), array('\\r', '\\n', '\\t'), $id));
+        return preg_replace('/([^\\w])/u', '\\\\$1', str_replace(["\r", "\n", "\t"], ['\\r', '\\n', '\\t'], $id));
     }
 
     private function getInterfaces(ReflectionClass $reflection)
