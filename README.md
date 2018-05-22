@@ -3,7 +3,7 @@
 Generate UML class diagrams by reflection for your PHP projects
 
 > Note: This project is in beta stage! Feel free to report any issues you encounter.
-
+> Note: This project is forked from clue/graph-uml. It supports PHP7 and uses phpunit 7
 ## Quickstart example
 
 Once [installed](#install), you can use the following code to draw an UML class
@@ -29,7 +29,7 @@ The recommended way to install this library is [through composer](http://getcomp
 ```JSON
 {
     "require": {
-        "clue/graph-uml": "0.2.*"
+        "storeman/graph-uml": "0.3.*"
     }
 }
 ```
