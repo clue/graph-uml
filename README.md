@@ -1,4 +1,7 @@
-# clue/graph-uml [![Build Status](https://travis-ci.org/clue/graph-uml.png?branch=master)](https://travis-ci.org/clue/graph-uml)
+# clue/graph-uml 
+
+[![Build Status](https://travis-ci.org/clue/graph-uml.png?branch=master)](https://travis-ci.org/clue/graph-uml)
+[![installs on Packagist](https://img.shields.io/packagist/dt/clue/graph-uml?color=blue&label=installs%20on%20Packagist)](https://packagist.org/packages/clue/graph-uml)
 
 Generate UML class diagrams by reflection for your PHP projects
 
